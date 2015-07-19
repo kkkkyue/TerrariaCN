@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrariaCN.WPF", "TerrariaCN.WPF\TerrariaCN.WPF.csproj", "{F289723A-EC30-47DE-9BB7-F70F6BA094E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrariaCN.LangCN", "TerrariaCN.LangCN\TerrariaCN.LangCN.csproj", "{42BDD159-0F12-4CCD-8B80-AB442D469FA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrariaCN.IL", "TerrariaCN.IL\TerrariaCN.IL.csproj", "{39332D4B-2AAB-472D-8E06-572D6E722EF9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F289723A-EC30-47DE-9BB7-F70F6BA094E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F289723A-EC30-47DE-9BB7-F70F6BA094E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F289723A-EC30-47DE-9BB7-F70F6BA094E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F289723A-EC30-47DE-9BB7-F70F6BA094E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42BDD159-0F12-4CCD-8B80-AB442D469FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42BDD159-0F12-4CCD-8B80-AB442D469FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42BDD159-0F12-4CCD-8B80-AB442D469FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42BDD159-0F12-4CCD-8B80-AB442D469FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39332D4B-2AAB-472D-8E06-572D6E722EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39332D4B-2AAB-472D-8E06-572D6E722EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39332D4B-2AAB-472D-8E06-572D6E722EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39332D4B-2AAB-472D-8E06-572D6E722EF9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
