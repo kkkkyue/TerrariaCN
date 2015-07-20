@@ -12,11 +12,39 @@ namespace TerrariaCN.IL
 {
     public class CIL
     {
-        public static void ReadAM()
+        public class ProgressChangedEventArgs:EventArgs
         {
+            public int ProgressPer;
+
+            public string Message;
+
+        }
+
+        public delegate void ProgressChanged(object sender, ProgressChangedEventArgs Args);
+
+        public event ProgressChanged OnProgressChanged;
+
+
+        public  void ReadAM()
+        {
+
+            Dictionary<string, string> CNDic;
+            using (StringReader sr = new StringReader(File.ReadAllText("cn.json")))
+            {
+                var sds = Newtonsoft.Json.JsonSerializer.Create();
+                CNDic=(Dictionary<string, string>)sds.Deserialize(sr, typeof(Dictionary<string, string>));
+                sr.Close();
+            }
+
             Dictionary<string, string> dic = new Dictionary<string, string>();
             var asm = AssemblyDefinition.ReadAssembly("TerrariaEN.exe");
+
+            var gameType = asm.MainModule.Import(typeof(LangCN.Game));
+
+            //asm.MainModule.Import(typeof(GraphicsDeviceManager));
+
             
+
             //设置方法引用
             var spriteType = asm.MainModule.Import(typeof(SpriteBatchCN));
 
@@ -36,8 +64,13 @@ namespace TerrariaCN.IL
 
             var typeMain = asm.MainModule.Types.FirstOrDefault(m => m.Name == "Main");
 
+            typeMain.BaseType = gameType;
+
             var h = typeMain.Fields.FirstOrDefault(m => m.Name == "spriteBatch");
             h.FieldType = spriteType;
+
+            //var h2 = typeMain.Fields.FirstOrDefault(m => m.Name == "graphics");
+            //typeMain.Fields.Remove(h2);
 
             var loadContentMethod = typeMain.Methods.FirstOrDefault(m => m.Name == "LoadContent");
 
@@ -47,6 +80,12 @@ namespace TerrariaCN.IL
             { 
                var loadContentWorker = loadContentMethod.Body.GetILProcessor();
                loadContentWorker.Replace(graphicsDevice, loadContentWorker.Create(OpCodes.Newobj, ctor));
+            }
+
+
+            if (OnProgressChanged != null)
+            {
+                OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 5, Message = "完成模块解析及导入" });
             }
 
             foreach (var type in asm.MainModule.Types)
@@ -71,12 +110,21 @@ namespace TerrariaCN.IL
                             {
                                 dic.Add(item.Operand.ToString(), item.Operand.ToString());
                             }
+                            if ((string)CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) != null)
+                            {
+                                item.Operand = CNDic[CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString())];
+                            }
                             //item.Operand = "劫持了";
                         }
                     }
                     
 
                     continue;
+                }
+
+                if (OnProgressChanged != null)
+                {
+                    OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 40, Message = "完成文本替换" });
                 }
 
                 foreach (var method in type.Methods)
@@ -122,15 +170,27 @@ namespace TerrariaCN.IL
                     }
                 }
             }
-
+            if (OnProgressChanged != null)
+            {
+                OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 85, Message = "完成模块函数劫持" });
+            }
             using (TextWriter tw = File.CreateText("en.json"))
             {
                 var sds = Newtonsoft.Json.JsonSerializer.Create();
                 sds.Serialize(tw, dic);
                 tw.Close();
             }
-               
+
+            if (OnProgressChanged != null)
+            {
+                OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 90, Message = "完成文本导出，请在根目录查看EN.JSON文件" });
+            }
+
             asm.Write("TerrariaCN.exe");
+            if (OnProgressChanged != null)
+            {
+                OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 100, Message = "全部完成，请改名TerrariaCN.exe为Terraria.exe 并同TerrariaCN.LangCN.dll一起复制到游戏目录" });
+            }
         }
     }
 }

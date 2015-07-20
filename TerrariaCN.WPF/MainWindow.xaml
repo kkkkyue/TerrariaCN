@@ -7,7 +7,9 @@
         mc:Ignorable="d"
         Title="汉化测试程序" Height="350" Width="525">
     <Grid>
-        <Button x:Name="button" Content="开始汉化" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="75" Click="button_Click"/>
+        <Button x:Name="CNbutton" Content="开始汉化" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="75" Click="button_Click"/>
+        <TextBlock x:Name="messageBlock" HorizontalAlignment="Center" Margin="0,87,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18.667"/>
+        <ProgressBar x:Name="progressBar" Height="30" Margin="0" VerticalAlignment="Bottom"/>
 
     </Grid>
 </Window>
