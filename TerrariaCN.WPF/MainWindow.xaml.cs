@@ -29,7 +29,7 @@ namespace TerrariaCN.WPF
 
         private void UpdateTextRight()
         {
-            TerrariaCN.IL.Class1.ReadAM();
+            TerrariaCN.IL.CIL.ReadAM();
             //throw new NotImplementedException();
         }
 

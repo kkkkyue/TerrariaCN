@@ -15,13 +15,7 @@ namespace TerrariaCN.IL
         SpriteFontX sfx1;
         static SpriteBatchCN()
         {
-            //AppDomain.CurrentDomain.GetAssemblies()[0].Modules.ToList()[0].GetFields()[0].
-            GraphicsDeviceManager graphics = (GraphicsDeviceManager)typeof(Terraria.Main).GetField("graphics").GetValue(null);
-            SpriteFontX fontItemStack = new SpriteFontX(new Font("黑体", 23f), graphics, TextRenderingHint.ClearTypeGridFit);
-            //fontMouseText = new SpriteFontX(new Font("黑体", 14f), graphics, TextRenderingHint.ClearTypeGridFit);
-            //fontDeathText = new SpriteFontX(new Font("黑体", 23f), graphics, TextRenderingHint.ClearTypeGridFit);
-            //fontCombatText[0] = new SpriteFontX(new Font("黑体", 14f), graphics, TextRenderingHint.ClearTypeGridFit);
-            //fontCombatText[1] = new SpriteFontX(new Font("黑体", 14f), graphics, TextRenderingHint.ClearTypeGridFit);
+           
 
         }
         public SpriteBatchCN(GraphicsDevice device):base(device)
