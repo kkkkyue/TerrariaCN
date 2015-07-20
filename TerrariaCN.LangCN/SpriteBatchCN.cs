@@ -27,12 +27,13 @@ namespace TerrariaCN.IL
             GraphicsDeviceManager graphics = (GraphicsDeviceManager)typeof(Terraria.Main).GetField("graphics").GetValue(null);
             _sf = new SpriteFontX(new Font("黑体", 14f), graphics, TextRenderingHint.ClearTypeGridFit);
             _deathsfx = new SpriteFontX(new Font("黑体", 23f), graphics, TextRenderingHint.ClearTypeGridFit);
-            _deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
+            //_deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
         }
 
         public new void DrawString(SpriteFont sfx, string str, Vector2 position, Microsoft.Xna.Framework.Color color)
         {
             //sfx.
+            _deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
             if (_deathsf!=null&&_deathsf.Equals(sfx))
             {
                 _deathsfx.Draw(this, str, position, color);
@@ -58,6 +59,7 @@ namespace TerrariaCN.IL
 
         public new void DrawString(SpriteFont sfx, string str, Vector2 position, Microsoft.Xna.Framework.Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
         {
+            _deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
             if (_deathsf != null && _deathsf.Equals(sfx))
             {
                 _deathsfx.Draw(this, str, position - origin, new Vector2(float.MaxValue, float.MaxValue), scale, color);
@@ -68,6 +70,7 @@ namespace TerrariaCN.IL
 
         public new void DrawString(SpriteFont sfx, string str, Vector2 position, Microsoft.Xna.Framework.Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
         {
+            _deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
             //_deathsfx.
             if (_deathsf != null && _deathsf.Equals(sfx))
             {

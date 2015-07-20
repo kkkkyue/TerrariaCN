@@ -37,13 +37,13 @@ namespace TerrariaCN.IL
             }
 
             Dictionary<string, string> dic = new Dictionary<string, string>();
-            var asm = AssemblyDefinition.ReadAssembly("TerrariaEN.exe");
+            var asm = AssemblyDefinition.ReadAssembly("Terraria.exe");
 
             var gameType = asm.MainModule.Import(typeof(LangCN.Game));
 
             //asm.MainModule.Import(typeof(GraphicsDeviceManager));
 
-            
+            var gameupdate = asm.MainModule.Import(gameType.Resolve().Methods[2]);
 
             //设置方法引用
             var spriteType = asm.MainModule.Import(typeof(SpriteBatchCN));
@@ -65,6 +65,12 @@ namespace TerrariaCN.IL
             var typeMain = asm.MainModule.Types.FirstOrDefault(m => m.Name == "Main");
 
             typeMain.BaseType = gameType;
+
+            var h2 = typeMain.Methods.FirstOrDefault(m => m.Name == "Update");
+            var wh2=h2.Body.GetILProcessor();
+            //wh2.InsertBefore(h2.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
+            wh2.InsertBefore(h2.Body.Instructions[0], wh2.Create(OpCodes.Call, gameupdate));
+            // wh2.InsertBefore(h2.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
 
             var h = typeMain.Fields.FirstOrDefault(m => m.Name == "spriteBatch");
             h.FieldType = spriteType;
