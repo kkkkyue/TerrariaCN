@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,10 +26,142 @@ namespace TerrariaCN.IL
         public event ProgressChanged OnProgressChanged;
 
 
+        public void DoToCN(MethodDefinition method)
+        {
+            Dictionary<string, string> tempDic = new Dictionary<string, string>();
+            Instruction ins = method.Body.Instructions[0];
+            var worker = method.Body.GetILProcessor();
+
+            //var callUnauthorized = method
+            //    .Body
+            //    .Instructions
+            //    .Where(i =>
+            //        i.OpCode == OpCodes.Ldstr
+            //        ).ToList();
+            int i = 0;
+            foreach (var item in method.Body.Instructions)
+            {
+                
+                if (item.OpCode==OpCodes.Ldsfld&&((FieldReference)item.Operand).FullName== "System.Int32 Terraria.Lang::lang")
+                {
+                    if (i > 0)
+                    {
+                        //using (TextWriter tw = File.CreateText(method.Name + "en.json"))
+                        //{
+                        //    var sds = Newtonsoft.Json.JsonSerializer.Create();
+                        //    sds.Serialize(tw, tempDic);
+                        //    tw.Close();
+                        
+                        i = 0;
+                        
+                        break;
+                    }
+                    i++;
+                }
+               
+                if (item.OpCode == OpCodes.Ldstr)
+                {
+                    string tempstr = item.Operand.ToString(); //toCN(item.Operand.ToString());
+                    if ((string)tempDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) == null)
+                    {
+                        tempDic.Add(item.Operand.ToString(), tempstr);
+                    }
+                    if ((string)dic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) == null)
+                    {
+                        dic.Add(item.Operand.ToString(), tempstr);
+                    }
+                    if ((string)CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) != null)
+                    {
+                        item.Operand =CNDic[CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString())];
+                    }
+                }
+            }
+
+            using (TextWriter tw = File.CreateText(method.Name+"en.json"))
+            {
+                var sds = Newtonsoft.Json.JsonSerializer.Create();
+                sds.Serialize(tw, tempDic);
+                tw.Close();
+            }
+
+        }
+
+        public static string toCN(string en)
+        {
+            string url = "http://apis.baidu.com/apistore/tranlateservice/translate";
+            string param = "query=" + en + "&from=en&to=zh";
+            string result = request(url, param);
+            return result;
+        }
+
+        /// <summary>
+        /// 发送HTTP请求
+        /// </summary>
+        /// <param name="url">请求的URL</param>
+        /// <param name="param">请求的参数</param>
+        /// <returns>请求结果</returns>
+        public static string request(string url, string param)
+        {
+            string strURL = url + '?' + param;
+            System.Net.HttpWebRequest request;
+            request = (System.Net.HttpWebRequest)WebRequest.Create(strURL);
+            request.Method = "GET";
+            // 添加header
+            request.Headers.Add("apikey", "ec3dedf550e5e6cea6c53385ed4f474a");
+            System.Net.HttpWebResponse response;
+            response = (System.Net.HttpWebResponse)request.GetResponse();
+            System.IO.Stream s;
+            s = response.GetResponseStream();
+            string StrDate = "";
+            string strValue = "";
+            StreamReader Reader = new StreamReader(s, Encoding.UTF8);
+            while ((StrDate = Reader.ReadLine()) != null)
+            {
+                strValue += StrDate + "\r\n";
+            }
+            StringReader sr = new StringReader(strValue);
+            Newtonsoft.Json.JsonTextReader jsonReader = new Newtonsoft.Json.JsonTextReader(sr);
+            Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            var r = serializer.Deserialize<Resault>(jsonReader);
+            //txtResult.Text = r.trans_result[0].dst;
+            if (r.retData.trans_result != null)
+            {
+                strValue = r.retData.trans_result[0].dst;
+            }
+            //StringReader sr=new 
+            //Newtonsoft.Json.JsonConverter.
+            return strValue;
+        }
+
+        public class Resault
+        {
+            public string errNum;
+
+            public string errMsg;
+
+            public TransObj retData;
+        }
+        public class TransObj
+        {
+            public string from { get; set; }
+            public string to { get; set; }
+            public List<TransResult> trans_result { get; set; }
+        }
+
+        public class TransResult
+        {
+            public string src { get; set; }
+            public string dst { get; set; }
+        }
+
+        Dictionary<string, string> CNDic;
+
+        Dictionary<string, string> dic;
+
         public  void ReadAM()
         {
 
-            Dictionary<string, string> CNDic;
+            
             using (StringReader sr = new StringReader(File.ReadAllText("cn.json")))
             {
                 var sds = Newtonsoft.Json.JsonSerializer.Create();
@@ -36,7 +169,8 @@ namespace TerrariaCN.IL
                 sr.Close();
             }
 
-            Dictionary<string, string> dic = new Dictionary<string, string>();
+            dic = new Dictionary<string, string>();
+
             var asm = AssemblyDefinition.ReadAssembly("Terraria.exe");
 
             var gameType = asm.MainModule.Import(typeof(LangCN.Game));
@@ -94,34 +228,15 @@ namespace TerrariaCN.IL
                 OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 5, Message = "完成模块解析及导入" });
             }
 
+
             foreach (var type in asm.MainModule.Types)
             {
                 if (type.Name=="Lang")
                 {
+                    
                     foreach (var method in type.Methods)
                     {
-
-                        Instruction ins = method.Body.Instructions[0];
-                        var worker = method.Body.GetILProcessor();
-
-                        var callUnauthorized = method
-                            .Body
-                            .Instructions
-                            .Where(i =>
-                                i.OpCode == OpCodes.Ldstr
-                                ).ToList();
-                        foreach (var item in callUnauthorized)
-                        {
-                            if ((string)dic.Keys.FirstOrDefault(m => m == item.Operand.ToString())==null)
-                            {
-                                dic.Add(item.Operand.ToString(), item.Operand.ToString());
-                            }
-                            if ((string)CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) != null)
-                            {
-                                item.Operand = CNDic[CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString())];
-                            }
-                            //item.Operand = "劫持了";
-                        }
+                        DoToCN(method);
                     }
                     
 
@@ -180,12 +295,12 @@ namespace TerrariaCN.IL
             {
                 OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 85, Message = "完成模块函数劫持" });
             }
-            using (TextWriter tw = File.CreateText("en.json"))
-            {
-                var sds = Newtonsoft.Json.JsonSerializer.Create();
-                sds.Serialize(tw, dic);
-                tw.Close();
-            }
+            //using (TextWriter tw = File.CreateText("en.json"))
+            //{
+            //    var sds = Newtonsoft.Json.JsonSerializer.Create();
+            //    sds.Serialize(tw, dic);
+            //    tw.Close();
+            //}
 
             if (OnProgressChanged != null)
             {

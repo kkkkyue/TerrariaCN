@@ -31,10 +31,13 @@ namespace TerrariaCN.LangCN
         public static void ScreenShot()
         {
            // _game = game;
-            if (Keyboard.GetState().IsKeyDown(Keys.F11))
-            {
-                ScreenShot("kkkkyue");
-            }
+            //if (Keyboard.GetState().IsKeyDown(Keys.F11))
+            //{
+            //    System.Windows.Forms.MessageBox.Show("测试");
+                
+            //    //GameWindow
+            //    //ScreenShot("kkkkyue");
+            //}
         }
 
         public static void ScreenShot(string prefix)
