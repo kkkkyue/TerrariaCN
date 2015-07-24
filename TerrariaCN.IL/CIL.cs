@@ -251,11 +251,13 @@ namespace TerrariaCN.IL
             {
                 if (type.Name=="Lang")
                 {
-                    
+                    var meotem = new MethodDefinition("itemNameOro", MethodAttributes.Static | MethodAttributes.Public, asm.MainModule.Import(typeof(string)));
+                    type.Methods.Add(meotem);
                     foreach (var method in type.Methods)
                     {
                         if (method.Name=="itemName")
                         {
+                            //meotem.Body.Instructions = method.Body.Instructions;
                             // type
                             var s = asm.MainModule.Import(langType.Resolve().Methods[0]);
                             var wh3 = method.Body.GetILProcessor();
@@ -266,7 +268,7 @@ namespace TerrariaCN.IL
                             wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
                             //ldarg.0
                         }
-                        else
+                        else if (method.Name != "itemNameOro")
                         {
                             DoToCN(method);
                         }
