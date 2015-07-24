@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using TerrariaCN.LangCN;
 
 namespace TerrariaCN.IL
 {
@@ -28,6 +29,13 @@ namespace TerrariaCN.IL
 
         public void DoToCN(MethodDefinition method)
         {
+            Dictionary<string, string> tempCNDic;
+            using (StringReader sr = new StringReader(File.ReadAllText(method.Name+"CN.json")))
+            {
+                var sds = Newtonsoft.Json.JsonSerializer.Create();
+                tempCNDic = (Dictionary<string, string>)sds.Deserialize(sr, typeof(Dictionary<string, string>));
+                sr.Close();
+            }
             Dictionary<string, string> tempDic = new Dictionary<string, string>();
             Instruction ins = method.Body.Instructions[0];
             var worker = method.Body.GetILProcessor();
@@ -62,6 +70,10 @@ namespace TerrariaCN.IL
                 if (item.OpCode == OpCodes.Ldstr)
                 {
                     string tempstr = item.Operand.ToString(); //toCN(item.Operand.ToString());
+                    if (string.IsNullOrEmpty(tempstr))
+                    {
+                        tempstr = item.Operand.ToString();
+                    }
                     if ((string)tempDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) == null)
                     {
                         tempDic.Add(item.Operand.ToString(), tempstr);
@@ -70,14 +82,14 @@ namespace TerrariaCN.IL
                     {
                         dic.Add(item.Operand.ToString(), tempstr);
                     }
-                    if ((string)CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) != null)
+                    if ((string)tempCNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString()) != null)
                     {
-                        item.Operand =CNDic[CNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString())];
+                        item.Operand = tempCNDic[tempCNDic.Keys.FirstOrDefault(m => m == item.Operand.ToString())];
                     }
                 }
             }
 
-            using (TextWriter tw = File.CreateText(method.Name+"en.json"))
+            using (TextWriter tw = File.CreateText(method.Name+"EN.json"))
             {
                 var sds = Newtonsoft.Json.JsonSerializer.Create();
                 sds.Serialize(tw, tempDic);
@@ -128,6 +140,10 @@ namespace TerrariaCN.IL
             {
                 strValue = r.retData.trans_result[0].dst;
             }
+            else
+            {
+                strValue = "";
+            }
             //StringReader sr=new 
             //Newtonsoft.Json.JsonConverter.
             return strValue;
@@ -162,12 +178,12 @@ namespace TerrariaCN.IL
         {
 
             
-            using (StringReader sr = new StringReader(File.ReadAllText("cn.json")))
-            {
-                var sds = Newtonsoft.Json.JsonSerializer.Create();
-                CNDic=(Dictionary<string, string>)sds.Deserialize(sr, typeof(Dictionary<string, string>));
-                sr.Close();
-            }
+            //using (StringReader sr = new StringReader(File.ReadAllText("cn.json")))
+            //{
+            //    var sds = Newtonsoft.Json.JsonSerializer.Create();
+            //    CNDic=(Dictionary<string, string>)sds.Deserialize(sr, typeof(Dictionary<string, string>));
+            //    sr.Close();
+            //}
 
             dic = new Dictionary<string, string>();
 
@@ -181,6 +197,8 @@ namespace TerrariaCN.IL
 
             //设置方法引用
             var spriteType = asm.MainModule.Import(typeof(SpriteBatchCN));
+
+            var langType = asm.MainModule.Import(typeof(Lang));
 
             var drawString6 = asm.MainModule.Import(spriteType.Resolve().Methods[7]);
 
@@ -236,7 +254,23 @@ namespace TerrariaCN.IL
                     
                     foreach (var method in type.Methods)
                     {
-                        DoToCN(method);
+                        if (method.Name=="itemName")
+                        {
+                            // type
+                            var s = asm.MainModule.Import(langType.Resolve().Methods[0]);
+                            var wh3 = method.Body.GetILProcessor();
+                            //wh2.InsertBefore(h2.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
+                            wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ret));
+                            wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Call, s));
+                            wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_1));
+                            wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
+                            //ldarg.0
+                        }
+                        else
+                        {
+                            DoToCN(method);
+                        }
+                        
                     }
                     
 
@@ -295,7 +329,7 @@ namespace TerrariaCN.IL
             {
                 OnProgressChanged(this, new ProgressChangedEventArgs() { ProgressPer = 85, Message = "完成模块函数劫持" });
             }
-            //using (TextWriter tw = File.CreateText("en.json"))
+            //using (TextWriter tw = File.CreateText("CN.json"))
             //{
             //    var sds = Newtonsoft.Json.JsonSerializer.Create();
             //    sds.Serialize(tw, dic);
