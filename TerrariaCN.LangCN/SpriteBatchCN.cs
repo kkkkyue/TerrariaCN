@@ -26,7 +26,7 @@ namespace TerrariaCN.IL
         {
             GraphicsDeviceManager graphics = (GraphicsDeviceManager)typeof(Terraria.Main).GetField("graphics").GetValue(null);
             _sf = new SpriteFontX(new Font("微软雅黑", 14f), graphics, TextRenderingHint.ClearTypeGridFit);
-            _deathsfx = new SpriteFontX(new Font("微软雅黑", 23f), graphics, TextRenderingHint.ClearTypeGridFit);
+            _deathsfx = new SpriteFontX(new Font("微软雅黑", 18f), graphics, TextRenderingHint.ClearTypeGridFit);
             //_deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
         }
 
@@ -70,20 +70,21 @@ namespace TerrariaCN.IL
 
         public new void DrawString(SpriteFont sfx, string str, Vector2 position, Microsoft.Xna.Framework.Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
         {
-            if (str=="弹药"|| str =="硬币")
+            if (str == "弹药" || str == "钱币")
             {
                 if (position.X == 532f && position.Y == 65.1f)
                 {
                     position.Y = 67.8f;
                 }
-                scale =0.8f;
-            }else if(str == "设置")
-            {
-                if (position.X > 1800f && position.Y > 990f)
-                {
-                    scale = 1f;
-                }
+                scale = 0.8f;
             }
+            //}else if(str == "设置")
+            //{
+            //    if (position.X > 1800f && position.Y > 990f)
+            //    {
+            //        scale = 1f;
+            //    }
+            //}
             _deathsf = (SpriteFont)typeof(Terraria.Main).GetField("fontDeathText").GetValue(null);
             //_deathsfx.
             if (_deathsf != null && _deathsf.Equals(sfx))

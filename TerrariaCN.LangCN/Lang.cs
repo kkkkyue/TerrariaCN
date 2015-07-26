@@ -17,8 +17,6 @@ namespace TerrariaCN.LangCN
             {
                 switch (l)
                 {
-                    default:
-                        return "";
                     case -48:
                         return "Platinum Bow";
                     case -47:
@@ -14614,10 +14612,9 @@ namespace TerrariaCN.LangCN
                     return "洛基的染料";
                 case 3600:
                     return "暗影之火冥王染料";
-                default:
-                    return itemName(l, true);
+               
             }
-
+            return typeof(Terraria.Lang).GetMethod("itemNameOro").Invoke(null, new object[] { l, english }).ToString();
           // return itemName(l,true);
         }
 

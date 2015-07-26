@@ -89,12 +89,12 @@ namespace TerrariaCN.IL
                 }
             }
 
-            using (TextWriter tw = File.CreateText(method.Name+"EN.json"))
-            {
-                var sds = Newtonsoft.Json.JsonSerializer.Create();
-                sds.Serialize(tw, tempDic);
-                tw.Close();
-            }
+            //using (TextWriter tw = File.CreateText(method.Name+"EN.json"))
+            //{
+            //    var sds = Newtonsoft.Json.JsonSerializer.Create();
+            //    sds.Serialize(tw, tempDic);
+            //    tw.Close();
+            //}
 
         }
 
@@ -232,6 +232,19 @@ namespace TerrariaCN.IL
 
             var loadContentMethod = typeMain.Methods.FirstOrDefault(m => m.Name == "LoadContent");
 
+            var InitializeMethod = typeMain.Methods.FirstOrDefault(m => m.Name == "Initialize");
+
+            var itemname = InitializeMethod.Body.Instructions.FirstOrDefault(m => m.OpCode == OpCodes.Ldfld&&((FieldReference)m.Operand).FullName== "System.String Terraria.Entity::name");
+
+            if(itemname!=null)
+            {
+                var itemnameWorker= InitializeMethod.Body.GetILProcessor();
+                itemnameWorker.InsertBefore(itemname, itemnameWorker.Create(OpCodes.Ldc_I4_1));
+                itemname.Previous.Previous.Operand = itemname.Previous.Previous.Previous.Operand;
+                itemnameWorker.Replace(itemname, itemnameWorker.Create(OpCodes.Call, asm.MainModule.Import(langType.Resolve().Methods[0])));
+                //itemname.Previous.Previous.Operand = 23;
+            }
+
             var graphicsDevice = loadContentMethod.Body.Instructions.FirstOrDefault(m => m.OpCode == OpCodes.Newobj && ((MethodReference)m.Operand).FullName == "System.Void Microsoft.Xna.Framework.Graphics.SpriteBatch::.ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice)");
 
             if (graphicsDevice!=null)
@@ -251,22 +264,44 @@ namespace TerrariaCN.IL
             {
                 if (type.Name=="Lang")
                 {
-                    var meotem = new MethodDefinition("itemNameOro", MethodAttributes.Static | MethodAttributes.Public, asm.MainModule.Import(typeof(string)));
+                    var meotem = new MethodDefinition("itemNameOro", MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.Public, asm.MainModule.Import(typeof(string)));
                     type.Methods.Add(meotem);
+                    //meotem.
                     foreach (var method in type.Methods)
                     {
                         if (method.Name=="itemName")
                         {
-                            //meotem.Body.Instructions = method.Body.Instructions;
-                            // type
+                            //var meotem = new MethodDefinition("itemNameOro", MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.Public, asm.MainModule.Import(typeof(string)));
+                            //type.Methods.Add(meotem);
+                            var wh4 = meotem.Body.GetILProcessor();
+
+                            foreach (var ins in method.Body.Instructions)
+                            {
+                                if (ins.OpCode == OpCodes.Call)
+                                {
+                                    ins.Operand = asm.MainModule.Import(meotem);
+                                }
+                                wh4.Append(ins);
+
+                            }
+                            foreach (var ins in method.Parameters)
+                            {
+                                meotem.Parameters.Add(ins);
+                            }
+
+                            foreach (var ins in method.Body.Variables)
+                            {
+                                meotem.Body.Variables.Add(ins);
+                            }
+                            meotem.Body.InitLocals = true;
+
                             var s = asm.MainModule.Import(langType.Resolve().Methods[0]);
                             var wh3 = method.Body.GetILProcessor();
-                            //wh2.InsertBefore(h2.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
                             wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ret));
                             wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Call, s));
                             wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_1));
                             wh3.InsertBefore(method.Body.Instructions[0], wh2.Create(OpCodes.Ldarg_0));
-                            //ldarg.0
+
                         }
                         else if (method.Name != "itemNameOro")
                         {
